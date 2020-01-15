@@ -8,6 +8,17 @@ function auth(req, res, next) {
   // 3- credentials will be expected in the req.body { username, password }
   // 4- if username === 'emma' & password === '1234' then proceed ---> next()
   // 5- otherwise we res.json 400 and that's that 
+  if (
+    req.body &&
+    req.body.username === "emma" &&
+    req.body.password === "1234"
+  ) {
+    next();
+  } else {
+    res.status(400).json({
+      message: "wrong username or password",
+    });
+  }
 }
 
 const server = express();
@@ -19,7 +30,7 @@ server.use(auth); // this would be putting auth across the board
 
 // let's add a segment that obscures the fact that this is an Express app
 // helmet, as imported, is a function that returns a middleware (which is in turn a function)
-server.use(helmet( /* we could potentially add helmet configuration */ ))
+server.use(helmet( /* we could potentially add helmet configuration */))
 
 server.use('/api/hubs', hubsRouter); // ADDING SEVERAL MIDDLEWARES
 
@@ -34,6 +45,10 @@ server.get('/', (req, res) => {
 
 server.get('*', (req, res) => {
   res.status(404).json({ message: 'Not found, sorry about that' })
+})
+
+server.post('*', (req, res) => {
+  res.json('congrats')
 })
 
 module.exports = server;
