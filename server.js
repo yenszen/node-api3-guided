@@ -8,25 +8,18 @@ function auth(req, res, next) {
   // 3- credentials will be expected in the req.body { username, password }
   // 4- if username === 'emma' & password === '1234' then proceed ---> next()
   // 5- otherwise we res.json 400 and that's that 
-  if (
-    req.body &&
-    req.body.username === "emma" &&
-    req.body.password === "1234"
-  ) {
+  const data = req.body; // {}
+  if (data.username === "emma" && data.password === "1234") {
     next();
   } else {
-    res.status(400).json({
-      message: "wrong username or password",
-    });
+    res.status(404).json("Nope!");
   }
 }
 
 const server = express();
 
-
 server.use(express.json()); // ADDING A SEGMENT TO THE TUBE -> PLUGGING A PIECE OF MIDDLEWARE
-server.use(auth); // this would be putting auth across the board
-
+// server.use(auth); // this would be putting auth across the board
 
 // let's add a segment that obscures the fact that this is an Express app
 // helmet, as imported, is a function that returns a middleware (which is in turn a function)
