@@ -25,6 +25,16 @@ server.use(express.json()); // ADDING A SEGMENT TO THE TUBE -> PLUGGING A PIECE 
 // helmet, as imported, is a function that returns a middleware (which is in turn a function)
 server.use(helmet( /* we could potentially add helmet configuration */))
 
+function validateUserId(req, res, next) {
+  // this applies to ids coming in the :id parameter of url
+  // 1- pull the id from req.params.id
+  // 2- use findById to see if a user comes back or null
+  // 3- if the id not there, respont to the client
+  // 4- if findById actually returns a user { ... }
+  // 5-      tack the user to req req.fancyUser = user that came back from the db
+  // 6-      next()
+}
+
 function logger(req, res, next) {
   console.log('logging the thing');
   next()
@@ -35,12 +45,20 @@ const loggerWithConfig = (customText) => (req, res, next) => {
   next()
 }
 
+server.use((req, res, next) => {
+  // this is a global middleware
+  // this will tack stuff to the req, for other middlewares or endpoints
+  req.ladyGaga = 'fav artist'
+  next()
+})
+
 // server.use(logger)
 server.use(loggerWithConfig('THE COOLNESS'))
 
 server.use('/api/hubs', hubsRouter); // ADDING SEVERAL MIDDLEWARES
 
 server.get('/', (req, res) => {
+  console.log(req.ladyGaga)
   const nameInsert = (req.name) ? ` ${req.name}` : '';
 
   res.send(`
