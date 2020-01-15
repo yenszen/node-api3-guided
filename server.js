@@ -2,6 +2,10 @@ const express = require('express'); // importing a CommonJS module
 const helmet = require('helmet'); // importing a pre-baked piece of middleware
 const hubsRouter = require('./hubs/hubs-router.js'); // [ ARRAY OF MIDDLEWARES, EACH BEING AN ENDPOINT ]
 
+function errorHandlingMiddleware(err, req, res, next) {
+  res.status(500).json(err.message);
+}
+
 function auth(req, res, next) {
   // 1- we need to check username and password
   // 2- username and password are in the request somewhere
@@ -12,7 +16,8 @@ function auth(req, res, next) {
   if (data.username === "emma" && data.password === "1234") {
     next();
   } else {
-    res.status(404).json("Nope!");
+    // res.status(404).json("Nope!");
+    next(new Error('nope'))
   }
 }
 
@@ -57,22 +62,20 @@ server.use(loggerWithConfig('THE COOLNESS'))
 
 server.use('/api/hubs', hubsRouter); // ADDING SEVERAL MIDDLEWARES
 
-server.get('/', (req, res) => {
-  console.log(req.ladyGaga)
-  const nameInsert = (req.name) ? ` ${req.name}` : '';
-
-  res.send(`
-    <h2>Lambda Hubs API</h2>
-    <p>Welcome${nameInsert} to the Lambda Hubs API</p>
-  `);
+server.get('/', (req, res, next) => {
+  if (true) { // unhappy about something
+    next(new Error('not happy at all'))
+  }
 });
 
 server.get('*', (req, res) => {
   res.status(404).json({ message: 'Not found, sorry about that' })
 })
 
-server.post('*', (req, res) => {
+server.post('*', auth, (req, res) => {
   res.json('congrats')
 })
+
+server.use(errorHandlingMiddleware)
 
 module.exports = server;
