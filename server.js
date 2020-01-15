@@ -25,6 +25,19 @@ server.use(express.json()); // ADDING A SEGMENT TO THE TUBE -> PLUGGING A PIECE 
 // helmet, as imported, is a function that returns a middleware (which is in turn a function)
 server.use(helmet( /* we could potentially add helmet configuration */))
 
+function logger(req, res, next) {
+  console.log('logging the thing');
+  next()
+}
+
+const loggerWithConfig = (customText) => (req, res, next) => {
+  console.log(`logging ${customText}`);
+  next()
+}
+
+// server.use(logger)
+server.use(loggerWithConfig('THE COOLNESS'))
+
 server.use('/api/hubs', hubsRouter); // ADDING SEVERAL MIDDLEWARES
 
 server.get('/', (req, res) => {
