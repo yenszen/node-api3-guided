@@ -6,6 +6,8 @@ const server = express();
 
 server.use(express.json()); // ADDING A SEGMENT TO THE TUBE -> PLUGGING A PIECE OF MIDDLEWARE
 
+// let's add a segment that obscures the fact that this is an Express app
+
 server.use('/api/hubs', hubsRouter); // ADDING SEVERAL MIDDLEWARES
 
 server.get('/', (req, res) => {
