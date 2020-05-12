@@ -139,6 +139,23 @@ function validateId(req, res, next) {
     });
 }
 
+// async version of validateId
+async function validateId2(req, res, next) {
+  const { id } = req.params;
+
+  try {
+    const hub = await Hubs.findById(id);
+    if (hub) {
+      req.hub = hub;
+      next();
+    } else {
+      next({ status: 404, message: "hub not found" });
+    }
+  } catch {
+    res.status(500).json({ message: "problem with the db", error: err });
+  }
+}
+
 function requireBody(req, res, next) {
   if (req.body && Object.keys(req.body).length > 0) {
     next();
