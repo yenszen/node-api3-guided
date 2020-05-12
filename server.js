@@ -41,9 +41,14 @@ function lockOut(req, res, next) {
 
 function addName(req, res, next) {
   if (!req.name) {
-    req.name = "Cassandra";
+    req.name = req.headers["x-name"] || "Cassandra";
   }
   next();
 }
+
+server.use((error, req, res, next) => {
+  // other things, try to fix it and then next(), log it etc.
+  res.status(error.status).json(error);
+});
 
 module.exports = server;

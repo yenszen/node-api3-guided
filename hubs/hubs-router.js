@@ -22,22 +22,24 @@ router.get("/", (req, res) => {
 
 // /api/hubs/:id
 
-router.get("/:id", (req, res) => {
-  Hubs.findById(req.params.id)
-    .then(hub => {
-      if (hub) {
-        res.status(200).json(hub);
-      } else {
-        res.status(404).json({ message: "Hub not found" });
-      }
-    })
-    .catch(error => {
-      // log error to server
-      console.log(error);
-      res.status(500).json({
-        message: "Error retrieving the hub"
-      });
-    });
+router.get("/:id", validateId, (req, res) => {
+  res.json(req.hub);
+
+  // Hubs.findById(req.params.id)
+  //   .then(hub => {
+  //     if (hub) {
+  //       res.status(200).json(hub);
+  //     } else {
+  //       res.status(404).json({ message: "Hub not found" });
+  //     }
+  //   })
+  //   .catch(error => {
+  //     // log error to server
+  //     console.log(error);
+  //     res.status(500).json({
+  //       message: "Error retrieving the hub"
+  //     });
+  //   });
 });
 
 router.post("/", (req, res) => {
@@ -54,14 +56,10 @@ router.post("/", (req, res) => {
     });
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", validateId, (req, res) => {
   Hubs.remove(req.params.id)
     .then(count => {
-      if (count > 0) {
-        res.status(200).json({ message: "The hub has been nuked" });
-      } else {
-        res.status(404).json({ message: "The hub could not be found" });
-      }
+      res.status(200).json({ message: "The hub has been nuked" });
     })
     .catch(error => {
       // log error to server
@@ -72,7 +70,7 @@ router.delete("/:id", (req, res) => {
     });
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", requireBody, (req, res) => {
   Hubs.update(req.params.id, req.body)
     .then(hub => {
       if (hub) {
@@ -122,5 +120,32 @@ router.post("/:id/messages", (req, res) => {
       });
     });
 });
+
+function validateId(req, res, next) {
+  const { id } = req.params;
+
+  Hubs.findById(id)
+    .then(hub => {
+      if (hub) {
+        req.hub = hub;
+        next();
+      } else {
+        next({ status: 404, message: "hub not found" });
+        // res.status(404).json({ message: "hub not found" });
+      }
+    })
+    .catch(err => {
+      res.status(500).json({ message: "problem with the db", error: err });
+    });
+}
+
+function requireBody(req, res, next) {
+  if (req.body && Object.keys(req.body).length > 0) {
+    next();
+  } else {
+    next({ status: 400, message: "please include a body" });
+    // res.status(400).json({ message: "please include a body" });
+  }
+}
 
 module.exports = router;
